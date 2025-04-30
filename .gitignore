@@ -1,2 +1,7 @@
-# Automatically created by mypy
+# 忽略所有檔案
 *
+# 但排除這些要加入版本控制的檔案（注意 ! 表示排除忽略）
+!*.py
+!*.txt
+!.gitignore
+!golf_data
