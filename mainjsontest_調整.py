@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 import re
@@ -40,7 +39,7 @@ class ConfigValidationError(Exception):
     """配置驗證異常基類"""
 
 def safe_path(path: str) -> Path:
-    """強化路徑安全處理 (相容Windows特殊字元)"""
+    """強化路徑安全處理 """
     return Path(str(path).encode('utf-8').decode('utf-8')).resolve()
 
 def get_free_gpu_mem_gb(device_id=0) -> float:
@@ -55,9 +54,9 @@ def get_free_gpu_mem_gb(device_id=0) -> float:
 
 @dataclass
 class SystemConfig:
-    """系統配置類 (精確匹配9個高爾夫資料檔案)"""
-    generation_do_sample: bool = True  # 新增採樣模式開關
-    generation_num_beams: int = 1      # 新增beam search參數
+    """系統配置類 """
+    generation_do_sample: bool = True  # 採樣模式開關
+    generation_num_beams: int = 1      # beam search參數
     generation_min_tokens: int = 64
     generation_max_tokens: int = 1024
     generation_temperature: float = 0.62
@@ -181,7 +180,7 @@ class StreamingDataLoader:
             self.logger.error(f"檔案 {path.name} 載入失敗: {str(e)}")
             return []
 
-# ----- 模組3：檢索系統 (CPU最佳化版) -----
+# ----- 模組3：檢索系統 (CPU) -----
 class HybridRetriever:
 
     def __init__(self, data_paths: List[Path], config: SystemConfig):
@@ -321,7 +320,7 @@ class HybridRetriever:
         )
         return filtered_sorted[:self.config.retrieval_top_k]
 
-# ----- 模組4：生成系統 (GPU高效版) -----
+# ----- 模組4：生成系統 (GPU) -----
 
 class GolfResponseGenerator:
     def __init__(self, config: SystemConfig):
@@ -368,7 +367,7 @@ class GolfResponseGenerator:
             tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/DeepSeek-R1-Distill-Llama-8B", use_fast=True)
             model = AutoModelForCausalLM.from_pretrained(
                 "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
-                device_map="auto",  # 簡化裝置對應
+                device_map="auto",  
                 torch_dtype=torch.float16,  # 使用FP16以節省顯示記憶體
                 low_cpu_mem_usage=True
             )
@@ -433,7 +432,7 @@ class GolfResponseGenerator:
             
         except RuntimeError as e:
             if 'CUDA' in str(e):
-                self._emergency_memory_clean()  # 新增緊急處理
+                self._emergency_memory_clean() 
                 return self._fallback_response("資源釋放中，請簡化問題後重試")
             
     def _emergency_memory_clean(self):
@@ -615,7 +614,7 @@ class GolfResponseGenerator:
             decoded = self.tokenizer.decode(input_ids[0][-25:])
             return any(phrase in decoded for phrase in self.stop_phrases)
 
-# ----- 模組5：主系統整合 (最佳化多執行緒使用及Joblib資料載入) -----
+# ----- 模組5：主系統整合 -----
 
 class MemoryCacheManager:
     """記憶體快取管理 (自訂LRU)"""
@@ -735,12 +734,12 @@ class GolfExpertSystem:
         return response
 
     def run(self):
-        """簡易互動式命令列介面"""
-        print("歡迎使用高爾夫規則問答系統，輸入 'exit' 離開。")
+        """簡易互動式介面"""
+        print("歡迎使用高爾夫問答系統，輸入 'exit' 離開。")
         while True:
             question = input("請輸入您的問題：").strip()
             if question.lower() == 'exit':
-                print("系統結束，謝謝使用！")
+                print("系統結束")
                 break
             answer = self.query(question)
             print("回答：\n", answer)
